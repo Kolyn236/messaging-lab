@@ -16,7 +16,10 @@ $messageBody = $argv[1] ?? 'Hello RabbitMQ';
 $connection = new AMQPStreamConnection($host, $port, $user, $password);
 $channel = $connection->channel();
 
-$channel->queue_declare('hello', false, false, false, false);
+// RabbitMQ 4.3+ denies transient non-exclusive queues by default.
+// The third argument is `durable`, so `true` makes the queue definition
+// survive a broker restart. Message persistence is a separate concern.
+$channel->queue_declare('hello', false, true, false, false);
 
 $message = new AMQPMessage($messageBody);
 $channel->basic_publish($message, '', 'hello');
