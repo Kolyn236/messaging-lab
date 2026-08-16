@@ -10,7 +10,7 @@ Producer ──publish──> RabbitMQ ──deliver──> Consumer
                          └── queue: hello
 ```
 
-By the end of this lesson you should be able to explain five words without looking them up:
+By the end of this lesson you should be able to explain these words without looking them up:
 
 - broker
 - producer
@@ -18,6 +18,7 @@ By the end of this lesson you should be able to explain five words without looki
 - connection
 - channel
 - queue
+- durable queue
 
 ## 1. Start the lab
 
@@ -79,6 +80,35 @@ The consumer:
 3. declares the same queue;
 4. subscribes to it and waits for deliveries.
 
+Both programs declare the queue as durable:
+
+```php
+$channel->queue_declare('hello', false, true, false, false);
+```
+
+The important arguments for now are:
+
+```text
+name       = hello
+durable    = true
+exclusive  = false
+autoDelete = false
+```
+
+RabbitMQ 4.3+ no longer permits transient (`durable=false`) non-exclusive classic queues by default. A durable queue is also the sensible choice here because producer and consumer use separate connections and need to refer to the same named queue.
+
+Durability of the queue and persistence of messages are two separate things:
+
+```text
+durable queue
+    = the queue definition survives a broker restart
+
+persistent message
+    = the publisher asks RabbitMQ to retain the message across a broker restart
+```
+
+Lesson 01 uses a durable queue but still publishes ordinary, non-persistent messages. We will add message persistence when we study delivery guarantees.
+
 The call below may look as if the producer publishes directly to a queue:
 
 ```php
@@ -127,21 +157,25 @@ Compare the `messages` and `consumers` columns with what you see in the Manageme
 Both `send.php` and `receive.php` contain:
 
 ```php
-$channel->queue_declare('hello', false, false, false, false);
+$channel->queue_declare('hello', false, true, false, false);
 ```
 
-Think about why both programs declare the queue instead of assuming the other program already created it.
+Think about:
+
+1. why both programs declare the queue instead of assuming the other program already created it;
+2. why the queue must be declared with the same properties by both applications;
+3. what `durable=true` guarantees, and what it does not guarantee.
 
 ## 6. Intentionally missing from lesson 01
 
-This queue and these messages are deliberately simple. We are not solving reliability yet.
+We are not solving message delivery reliability yet.
 
 Not covered yet:
 
 - manual acknowledgements (`ack` / `nack`)
-- durable queues
 - persistent messages
-- exchanges and bindings
+- publisher confirms
+- custom exchanges and bindings
 - retries
 - dead-letter queues
 - prefetch
@@ -155,3 +189,4 @@ Those concepts become much easier to understand after the basic message path is 
 3. Why does the producer terminate but the consumer stays alive?
 4. What does the empty exchange name in `basic_publish()` mean?
 5. What happens if three messages are published while the consumer is stopped?
+6. What is the difference between a durable queue and a persistent message?
