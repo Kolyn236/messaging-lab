@@ -1,6 +1,8 @@
 MSG ?= Hello RabbitMQ
+TASK ?= demo-task
+DURATION ?= 5
 
-.PHONY: init build up down install rabbit-send rabbit-consume rabbit-queues
+.PHONY: init build up down install rabbit-send rabbit-consume rabbit-queues rabbit-task rabbit-worker rabbit-work-queues
 
 init: build up install
 
@@ -24,3 +26,12 @@ rabbit-consume:
 
 rabbit-queues:
 	docker compose exec rabbitmq rabbitmqctl list_queues name messages consumers
+
+rabbit-task:
+	docker compose exec app php experiments/rabbitmq/02-work-queues/send.php "$(TASK)" "$(DURATION)"
+
+rabbit-worker:
+	docker compose exec app php experiments/rabbitmq/02-work-queues/worker.php
+
+rabbit-work-queues:
+	docker compose exec rabbitmq rabbitmqctl list_queues name messages_ready messages_unacknowledged consumers
