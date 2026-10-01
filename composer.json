@@ -1,0 +1,9 @@
+{
+  "name": "kolyn236/messaging-lab",
+  "description": "Hands-on RabbitMQ and Kafka learning lab",
+  "type": "project",
+  "require": {
+    "php": ">=8.3",
+    "php-amqplib/php-amqplib": "^3.7"
+  }
+}
