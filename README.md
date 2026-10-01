@@ -30,9 +30,9 @@ Outbox + idempotency + production patterns
 
 ## Current lesson
 
-**Lesson 01 — RabbitMQ: Producer → Queue → Consumer**
+**Lesson 03 — RabbitMQ: Exchanges, Bindings and Routing Keys**
 
-Read: [`docs/lessons/01-rabbitmq-hello-world.md`](docs/lessons/01-rabbitmq-hello-world.md)
+Read: [`docs/lessons/03-rabbitmq-exchanges-routing.md`](docs/lessons/03-rabbitmq-exchanges-routing.md)
 
 Quick start:
 
@@ -40,16 +40,23 @@ Quick start:
 make init
 ```
 
-Terminal A:
+Terminal A (messages routed as `info`):
 
 ```bash
-make rabbit-consume
+make rabbit-route-consume ROUTING_QUEUE=routing_info ROUTING_KEY=info
 ```
 
-Terminal B:
+Terminal B (messages routed as `error`):
 
 ```bash
-make rabbit-send MSG="Hello RabbitMQ"
+make rabbit-route-consume ROUTING_QUEUE=routing_error ROUTING_KEY=error
+```
+
+Terminal C:
+
+```bash
+make rabbit-route-send ROUTING_KEY=info ROUTED_MSG="Service started"
+make rabbit-route-send ROUTING_KEY=error ROUTED_MSG="Service failed"
 ```
 
 RabbitMQ Management UI: `http://localhost:15672`

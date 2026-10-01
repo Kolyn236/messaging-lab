@@ -1,0 +1,14 @@
+version: 1
+executor:
+  type: docker-compose
+  file: compose.yaml
+phases:
+  - id: php-syntax
+    service: app
+    command:
+      - sh
+      - -c
+      - find experiments/rabbitmq -type f -name '*.php' -print -exec php -l '{}' ';'
+  - id: composer-validation
+    service: app
+    command: [composer, validate, --no-check-publish]
